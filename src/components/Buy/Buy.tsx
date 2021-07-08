@@ -7,6 +7,7 @@ import {
     Stepper,
     Typography,
 } from "@material-ui/core";
+import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "../../intrastructure/store/app-state";
@@ -46,7 +47,8 @@ const useStyles = makeStyles((theme) => ({
 
 function useBuy() {
     const entries = useSelector((state: AppState) => state.cart.entries);
-    const [addressDetails, setAddressDetails] = useState();
+    const [addressDetails, setAddressDetails] = useState({});
+    const [paymentDetails, setPaymentDetails] = useState({});
 
     const [activeStep, setActiveStep] = useState(0);
     const total = useMemo(
@@ -61,12 +63,22 @@ function useBuy() {
         setActiveStep(activeStep + 1);
     };
 
+    useEffect(() => {
+        console.log("Address:", addressDetails);
+    }, [addressDetails]);
+    useEffect(() => {
+        console.log("Payment:", paymentDetails);
+    }, [paymentDetails]);
+
     return {
         summary,
         onBack,
         onForward,
         activeStep,
+        addressDetails,
+        paymentDetails,
         setAddressDetails,
+        setPaymentDetails
     };
 }
 
@@ -77,20 +89,38 @@ interface ContentProps {
     onForward: () => void;
     onBack: () => void;
     setAddressDetails: (details: any) => void;
+    setPaymentDetails: (details: any) => void;
+    addressDetails: any;
+    paymentDetails: any;
 }
 function Content({
     activeStep,
     onBack,
     onForward,
     setAddressDetails,
+    setPaymentDetails,
+    addressDetails,
+    paymentDetails,
 }: ContentProps) {
     switch (activeStep) {
         case 0:
             return (
                 <AddressForm
                     title="Address details"
+                    model={addressDetails}
                     onPrimary={(model) => {
                         setAddressDetails(model);
+                        onForward();
+                    }}
+                    primaryLabel="next"
+                />
+            );
+        case 1:
+            return (
+                <PaymentDetailsForm
+                    title="Payment details"
+                    onPrimary={(model) => {
+                        setPaymentDetails(model);
                         onForward();
                     }}
                     primaryLabel="next"
@@ -98,16 +128,22 @@ function Content({
                     onSecondary={onBack}
                 />
             );
-        case 1:
-            return <PaymentDetailsForm title="Payment details" />;
         default:
             return <div></div>;
     }
 }
 
 export function Buy() {
-    const { summary, activeStep, onForward, onBack, setAddressDetails } =
-        useBuy();
+    const {
+        summary,
+        activeStep,
+        onForward,
+        onBack,
+        setAddressDetails,
+        setPaymentDetails,
+        addressDetails,
+        paymentDetails
+    } = useBuy();
     const classes = useStyles();
 
     return (
@@ -127,6 +163,9 @@ export function Buy() {
                         onForward={onForward}
                         onBack={onBack}
                         setAddressDetails={setAddressDetails}
+                        setPaymentDetails={setPaymentDetails}
+                        addressDetails={addressDetails}
+                        paymentDetails={paymentDetails}
                     />
                 </Paper>
             </Grid>

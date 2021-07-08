@@ -6,8 +6,9 @@ import {
     MenuItem,
     Select,
 } from "@material-ui/core";
-import { useState } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import { Nullable } from "../../../intrastructure/types";
+import { xFormServiceContext } from "../xForm.service";
 import { XFieldProps } from "./fieldProps";
 import { RequiredValidation, useValidation, validate } from "./validation";
 
@@ -33,52 +34,85 @@ function useXSelectField<S>(props: XSelectFieldProps<S>) {
         fieldName,
         values,
     } = props;
+
+    const formService = useContext(xFormServiceContext);
+    const { subscribe, updateField, addError } = formService;
+
+    // Can use component without service. Externat update function takes precedence
+    const updateFn = onUpdate || updateField;
+    const updateErrorFn = onUpdateErrorState || addError;
+
     const [selectedValue, setSelectedValue] = useState<Nullable<S>>(value || values[0].value);
+    const [isDirty, setIsDirty] = useState<boolean>(false);
     const { isValid, onValidation, helperText } = useValidation({
         errorMessage,
-        onUpdateErrorState,
+        updateErrorFn,
         fieldName,
     });
+
+
+    const valueRef = useRef<Nullable<S>>();
+    const validRef = useRef<boolean>(true);
+    validRef.current = isValid;
+    valueRef.current = selectedValue;
+
+    const tryValidate = (value: Nullable<S>) => {
+        if (validation) {
+            const validationResult = validate({ validation, value });
+            onValidation(validationResult);
+        }
+    };
+
+    useEffect(() => {
+        subscribe({
+            value: valueRef,
+            isDirty: () => isDirty,
+            setDirty: (dirt) => setIsDirty(dirt),
+            isValid: validRef,
+            name: fieldName
+        });
+
+        tryValidate(value);
+    }, []);
 
     const onBlur = (
         event: { target: { value: S } }
     ) => {
         const value = event.target.value;
-        if (onUpdateErrorState) {
-            const validationResult = validate({ validation, value });
-            onValidation(validationResult);
-        }
+        tryValidate(value);
 
-        onUpdate({ value, fieldName });
+        updateFn({ value, fieldName });
     };
+
+    const onFocus = () => setIsDirty(true);
 
     const onChange = (
         event: { target: { value: S } }
     ) => {
         const value = event.target.value;
         setSelectedValue(value);
-        if (onUpdateErrorState && validation) {
-            const validationResult = validate({ validation, value });
-            onValidation(validationResult);
-        }
+        tryValidate(value);
     };
+
     return {
         selectedValue,
+        values,
         onChange,
         onBlur,
-        values,
-        helperText,
-        isValid,
+        onFocus,
         label,
+        errorMessage: isDirty && helperText,
+        showError: !isValid && isDirty,
+        isDirty,
     };
 }
 
 export function XSelectField<S>(props: XSelectFieldProps<S>) {
-    const { selectedValue, onChange, onBlur, values, isValid, helperText, label } =
+    const { selectedValue, onChange, onBlur, values, errorMessage, label, showError } =
         useXSelectField(props);
     const classes = useStyles();
     return (
-        <FormControl className={classes.field} error={!isValid}>
+        <FormControl className={classes.field} error={showError}>
             <InputLabel id="demo-simple-select-label">{label}</InputLabel>
             <Select
                 labelId="demo-simple-select-label"
@@ -95,7 +129,7 @@ export function XSelectField<S>(props: XSelectFieldProps<S>) {
                     );
                 })}
             </Select>
-            <FormHelperText>{helperText}</FormHelperText>
+            <FormHelperText>{errorMessage}</FormHelperText>
         </FormControl>
     );
 }

@@ -1,4 +1,11 @@
-import { Typography, Grid, Button } from "@material-ui/core";
+import {
+    Typography,
+    Grid,
+    Button,
+    makeStyles,
+    createStyles,
+    Theme,
+} from "@material-ui/core";
 import { useContext } from "react";
 import { ValidationType } from "../XForm/fields/validation";
 import { XTextField } from "../XForm/fields/XTextField";
@@ -12,22 +19,36 @@ import {
 export interface AddressFormProps {
     title: string;
     primaryLabel: string;
-    secondaryLabel: string;
+    model: any;
     onPrimary: (model: any) => void;
-    onSecondary: () => void;
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        action: {
+            marginTop: theme.spacing(1),
+        },
+    })
+);
 
 function Form({
     title,
     primaryLabel,
     onPrimary,
-    onSecondary,
-    secondaryLabel,
+    model
 }: AddressFormProps) {
     const formService = useContext(xFormServiceContext);
+    const classes = useStyles();
 
-    const { addError, updateField, isFormValid, formErrors, formModel } =
-        formService;
+    const {
+        addError,
+        updateField,
+        isFormValid,
+        formErrors,
+        formModel,
+        isFormDirty,
+        onFormPrimary,
+    } = formService;
     return (
         <>
             <Typography variant="h6" gutterBottom>
@@ -37,9 +58,10 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="firstName"
+                        value={model.firstName}
                         errorMessage="This field is required"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
-                        label="first name"
+                        label="First Name"
                         onUpdateErrorState={(err: FieldError) => addError(err)}
                         validation={{ type: ValidationType.required }}
                     />
@@ -47,9 +69,10 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="lastName"
+                        value={model.lastName}
                         errorMessage="last name is required"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
-                        label="last name"
+                        label="Last Name*"
                         onUpdateErrorState={(err: FieldError) => addError(err)}
                         validation={{ type: ValidationType.required }}
                     />
@@ -57,15 +80,17 @@ function Form({
                 <Grid item xs={12}>
                     <XTextField
                         fieldName="address1"
+                        value={model.address}
                         errorMessage="address is required"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
-                        label="address1"
+                        label="Address1*"
                         onUpdateErrorState={(err: FieldError) => addError(err)}
                         validation={{ type: ValidationType.required }}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12}>
                     <XTextField
+                        value={model.address2}
                         fieldName="address2"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
                         label="address2"
@@ -74,8 +99,9 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="city"
+                        value={model.city}
                         onUpdate={(field: FieldUpdate) => updateField(field)}
-                        label="City"
+                        label="City*"
                         validation={{ type: ValidationType.required }}
                         onUpdateErrorState={(err: FieldError) => addError(err)}
                     />
@@ -83,6 +109,7 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="region"
+                        value={model.region}
                         onUpdate={(field: FieldUpdate) => updateField(field)}
                         label="State/Province/Region"
                     />
@@ -90,8 +117,9 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="zip"
+                        value={model.zip}
                         onUpdate={(field: FieldUpdate) => updateField(field)}
-                        label="zip/postal code"
+                        label="zip/postal code*"
                         errorMessage="invalid zip code"
                         validation={{ type: ValidationType.zip }}
                         onUpdateErrorState={(err: FieldError) => addError(err)}
@@ -99,22 +127,21 @@ function Form({
                 </Grid>
             </Grid>
             <Button
-                size="small"
+                size="medium"
                 color="primary"
-                disabled={!isFormValid}
+                variant="contained"
+                className={classes.action}
+                disabled={!isFormValid && isFormDirty}
                 onClick={() => {
-                    onPrimary(formModel);
+                    if (isFormValid) {
+                        onPrimary(formModel);
+                    } else {
+                        onFormPrimary();
+                    }
                 }}
             >
                 {primaryLabel}
             </Button>
-            <Button
-                size="small"
-                color="secondary"
-                onClick={() => {
-                    onSecondary();
-                }}
-            ></Button>
         </>
     );
 }

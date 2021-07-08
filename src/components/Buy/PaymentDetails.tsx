@@ -1,4 +1,11 @@
-import { Typography, Grid, Button } from "@material-ui/core";
+import {
+    Typography,
+    Grid,
+    Button,
+    makeStyles,
+    Theme,
+    createStyles,
+} from "@material-ui/core";
 import { useContext, useMemo } from "react";
 import { ValidationType } from "../XForm/fields/validation";
 import { XSelectField } from "../XForm/fields/XSelectField";
@@ -12,6 +19,10 @@ import {
 
 export interface PaymentDetailsProps {
     title: string;
+    primaryLabel: string;
+    secondaryLabel: string;
+    onPrimary: (model: any) => void;
+    onSecondary: () => void;
 }
 
 function useDetailsForm() {
@@ -86,12 +97,34 @@ function useDetailsForm() {
     };
 }
 
-function Form({ title }: PaymentDetailsProps) {
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        action: {
+            marginTop: theme.spacing(1),
+            marginRight: theme.spacing(1),
+        },
+    })
+);
+
+function Form({
+    title,
+    primaryLabel,
+    onPrimary,
+    onSecondary,
+    secondaryLabel,
+}: PaymentDetailsProps) {
     const formService = useContext(xFormServiceContext);
     const { selectYears, selectMonths } = useDetailsForm();
+    const classes = useStyles();
 
-    const { addError, updateField, isFormValid, formErrors, formModel } =
-        formService;
+    const {
+        addError,
+        updateField,
+        isFormValid,
+        isFormDirty,
+        formModel,
+        onFormPrimary,
+    } = formService;
     return (
         <>
             <Typography variant="h6" gutterBottom>
@@ -142,14 +175,29 @@ function Form({ title }: PaymentDetailsProps) {
                 </Grid>
             </Grid>
             <Button
-                size="small"
+                size="medium"
                 color="primary"
-                disabled={!isFormValid}
+                variant="contained"
+                className={classes.action}
+                disabled={!isFormValid && isFormDirty}
                 onClick={() => {
-                    console.log("form model: ", formModel);
+                    if (isFormValid) {
+                        onPrimary(formModel);
+                    } else {
+                        onFormPrimary();
+                    }
                 }}
             >
-                Submit
+                {primaryLabel}
+            </Button>
+            <Button
+                className={classes.action}
+                size="medium"
+                color="secondary"
+                variant="contained"
+                onClick={onSecondary}
+            >
+                {secondaryLabel}
             </Button>
         </>
     );

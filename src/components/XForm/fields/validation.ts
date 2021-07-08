@@ -94,10 +94,10 @@ export function validate<T>({ validation, value }: ValidationProps<T>) {
 
 interface UseValidationProps {
     errorMessage: Nullable<string>;
-    onUpdateErrorState: Nullable<(err: FieldError) => void>;
+    updateErrorFn: (err: FieldError) => void;
     fieldName: string;
 }
-export function useValidation({errorMessage, onUpdateErrorState, fieldName}: UseValidationProps) {
+export function useValidation({errorMessage, updateErrorFn, fieldName}: UseValidationProps) {
     const [isValid, setIsValid] = useState(true);
     const [helperText, setHelperText] = useState("");
 
@@ -105,7 +105,7 @@ export function useValidation({errorMessage, onUpdateErrorState, fieldName}: Use
         var msg = validationResult ? "" : errorMessage || "";
         setIsValid(validationResult);
         setHelperText(msg);
-        onUpdateErrorState && onUpdateErrorState({ fieldName, error: msg });
+        updateErrorFn && updateErrorFn({ fieldName, error: msg });
     };
 
     return {
