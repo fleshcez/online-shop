@@ -22,7 +22,8 @@ export interface PaymentDetailsProps {
     primaryLabel: string;
     secondaryLabel: string;
     onPrimary: (model: any) => void;
-    onSecondary: () => void;
+    onSecondary: (model: any) => void;
+    model: any;
 }
 
 function useDetailsForm() {
@@ -112,6 +113,7 @@ function Form({
     onPrimary,
     onSecondary,
     secondaryLabel,
+    model
 }: PaymentDetailsProps) {
     const formService = useContext(xFormServiceContext);
     const { selectYears, selectMonths } = useDetailsForm();
@@ -123,7 +125,7 @@ function Form({
         isFormValid,
         isFormDirty,
         formModel,
-        onFormPrimary,
+        onAction,
     } = formService;
     return (
         <>
@@ -134,6 +136,7 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="nameOnCard"
+                        value={model.nameOnCard}
                         errorMessage="required"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
                         label="name on card*"
@@ -144,6 +147,7 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XTextField
                         fieldName="cardNumber"
+                        value={model.cardNumber}
                         errorMessage="invalid card number"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
                         label="card number"
@@ -154,6 +158,7 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XSelectField
                         fieldName="expiryMonth"
+                        value={model.expiryMonth}
                         errorMessage="required"
                         onUpdate={updateField}
                         label="expiry month"
@@ -165,6 +170,7 @@ function Form({
                 <Grid item xs={12} sm={6}>
                     <XSelectField
                         fieldName="expiryYear"
+                        value={model.expiryYear}
                         errorMessage="required"
                         onUpdate={updateField}
                         label="expiry year"
@@ -175,29 +181,25 @@ function Form({
                 </Grid>
             </Grid>
             <Button
+                className={classes.action}
+                size="medium"
+                color="secondary"
+                variant="contained"
+                onClick={() => onAction(onSecondary)}
+            >
+                {secondaryLabel}
+            </Button>
+            <Button
                 size="medium"
                 color="primary"
                 variant="contained"
                 className={classes.action}
                 disabled={!isFormValid && isFormDirty}
                 onClick={() => {
-                    if (isFormValid) {
-                        onPrimary(formModel);
-                    } else {
-                        onFormPrimary();
-                    }
+                    onAction(onPrimary);
                 }}
             >
                 {primaryLabel}
-            </Button>
-            <Button
-                className={classes.action}
-                size="medium"
-                color="secondary"
-                variant="contained"
-                onClick={onSecondary}
-            >
-                {secondaryLabel}
             </Button>
         </>
     );

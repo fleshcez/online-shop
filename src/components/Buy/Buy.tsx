@@ -78,7 +78,7 @@ function useBuy() {
         addressDetails,
         paymentDetails,
         setAddressDetails,
-        setPaymentDetails
+        setPaymentDetails,
     };
 }
 
@@ -118,6 +118,7 @@ function Content({
         case 1:
             return (
                 <PaymentDetailsForm
+                    model={paymentDetails}
                     title="Payment details"
                     onPrimary={(model) => {
                         setPaymentDetails(model);
@@ -125,7 +126,10 @@ function Content({
                     }}
                     primaryLabel="next"
                     secondaryLabel="back"
-                    onSecondary={onBack}
+                    onSecondary={(model) => {
+                        setPaymentDetails(model);
+                        onBack();
+                    }}
                 />
             );
         default:
@@ -142,7 +146,7 @@ export function Buy() {
         setAddressDetails,
         setPaymentDetails,
         addressDetails,
-        paymentDetails
+        paymentDetails,
     } = useBuy();
     const classes = useStyles();
 

@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect } from "react";
-import { createContext, ReactNode, useMemo, useState } from "react";
+import { createContext, ReactNode, useState } from "react";
 
 export interface FieldError {
     fieldName: string;
@@ -35,7 +35,7 @@ export interface XFormService {
     formErrors: FormErrors;
     subscribe: (subscriber: FormSubscriber) => void;
     isFormDirty: boolean;
-    onFormPrimary: () => void;
+    onAction: (callbackFn:(model:any) => void) => void;
 }
 
 export const xFormServiceContext = createContext<XFormService>(
@@ -67,13 +67,24 @@ function useXFormService(): XFormService {
         setIsFormValid(res);
     };
 
-    const onFormPrimary = () => {
-        setIsFormDirty(true);
-        subscribers.forEach(s => s.setDirty(true));
+    // Retrieves form model and calls back with it
+    const onAction = (callbackFn: (model:any) => void, validate?: boolean) => {
+        if(!validate || isFormValid) {
+            // Browser autocomplete doesn't trigger change event on fields.
+            // Won't have all fields populated if not manually pulling values
+            const latestFormModel = subscribers.reduce((acc, cur) => ({
+                ...acc,
+                [cur.name]: cur.value.current
+            }), {});
+            callbackFn(latestFormModel);
+        } else {
+            setIsFormDirty(true);
+            subscribers.forEach(s => s.setDirty(true));
+        }
     };
 
     const updateField = ({ fieldName, value }: FieldUpdate) => {
-        setFormModel({ ...formModel, [fieldName]: value });
+        setFormModel(prevModel => ({ ...prevModel, [fieldName]: value }));
         validateChildren();
     };
 
@@ -93,7 +104,7 @@ function useXFormService(): XFormService {
         isFormValid,
         subscribe,
         isFormDirty,
-        onFormPrimary
+        onAction
     };
 }
 

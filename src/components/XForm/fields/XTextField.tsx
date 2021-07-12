@@ -27,7 +27,7 @@ function useXTextField(props: XTextFieldProps) {
     const updateFn = onUpdate || updateField;
     const updateErrorFn = onUpdateErrorState || addError;
 
-    const [fieldValue, setFieldValue] = useState(value || "");
+    const [fieldValue, setFieldValue] = useState<Nullable<string>>(value || "");
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const { isValid, onValidation, helperText } = useValidation({
         errorMessage,
@@ -42,7 +42,7 @@ function useXTextField(props: XTextFieldProps) {
         }
     };
 
-    const valueRef = useRef<string>('');
+    const valueRef = useRef<Nullable<string>>('');
     const validRef = useRef<boolean>(true);
     validRef.current = isValid;
     valueRef.current = fieldValue;
@@ -56,10 +56,11 @@ function useXTextField(props: XTextFieldProps) {
             name: fieldName
         });
 
-        tryValidate(value);
+        tryValidate(valueRef.current);
+        updateFn({ value: valueRef.current, fieldName });
     }, []);
 
-    const onBlur = (event: { target: { value: any } }) => {
+    const onBlur = (event: { target: { value: string } }) => {
         const value = event.target.value;
         tryValidate(value);
 
@@ -68,11 +69,9 @@ function useXTextField(props: XTextFieldProps) {
 
     const onFocus = () => setIsDirty(true);
 
-    const onChange = ({
-        target: { value },
-    }: React.ChangeEvent<HTMLInputElement>) => {
-        setFieldValue(value);
-        tryValidate(value);
+    const onChange = (event: { target: { value: string } }) => {
+        setFieldValue(event.target.value);
+        tryValidate(event.target.value);
     };
 
     return {

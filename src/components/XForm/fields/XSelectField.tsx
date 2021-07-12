@@ -38,11 +38,11 @@ function useXSelectField<S>(props: XSelectFieldProps<S>) {
     const formService = useContext(xFormServiceContext);
     const { subscribe, updateField, addError } = formService;
 
-    // Can use component without service. Externat update function takes precedence
+    // Can use component without service. External update function takes precedence
     const updateFn = onUpdate || updateField;
     const updateErrorFn = onUpdateErrorState || addError;
 
-    const [selectedValue, setSelectedValue] = useState<Nullable<S>>(value || values[0].value);
+    const [fieldValue, setFieldValue] = useState<Nullable<S>>(value || values[0].value);
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const { isValid, onValidation, helperText } = useValidation({
         errorMessage,
@@ -54,7 +54,7 @@ function useXSelectField<S>(props: XSelectFieldProps<S>) {
     const valueRef = useRef<Nullable<S>>();
     const validRef = useRef<boolean>(true);
     validRef.current = isValid;
-    valueRef.current = selectedValue;
+    valueRef.current = fieldValue;
 
     const tryValidate = (value: Nullable<S>) => {
         if (validation) {
@@ -72,7 +72,8 @@ function useXSelectField<S>(props: XSelectFieldProps<S>) {
             name: fieldName
         });
 
-        tryValidate(value);
+        tryValidate(valueRef.current);
+        updateFn({ value: valueRef.current, fieldName });
     }, []);
 
     const onBlur = (
@@ -90,12 +91,12 @@ function useXSelectField<S>(props: XSelectFieldProps<S>) {
         event: { target: { value: S } }
     ) => {
         const value = event.target.value;
-        setSelectedValue(value);
+        setFieldValue(value);
         tryValidate(value);
     };
 
     return {
-        selectedValue,
+        selectedValue: fieldValue,
         values,
         onChange,
         onBlur,

@@ -47,7 +47,7 @@ function Form({
         formErrors,
         formModel,
         isFormDirty,
-        onFormPrimary,
+        onAction,
     } = formService;
     return (
         <>
@@ -80,7 +80,7 @@ function Form({
                 <Grid item xs={12}>
                     <XTextField
                         fieldName="address1"
-                        value={model.address}
+                        value={model.address1}
                         errorMessage="address is required"
                         onUpdate={(field: FieldUpdate) => updateField(field)}
                         label="Address1*"
@@ -133,11 +133,7 @@ function Form({
                 className={classes.action}
                 disabled={!isFormValid && isFormDirty}
                 onClick={() => {
-                    if (isFormValid) {
-                        onPrimary(formModel);
-                    } else {
-                        onFormPrimary();
-                    }
+                    onAction(onPrimary);
                 }}
             >
                 {primaryLabel}
