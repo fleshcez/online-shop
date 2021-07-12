@@ -12,7 +12,7 @@ import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "../../intrastructure/store/app-state";
 import { AddressForm } from "./AddressForm";
-import { PaymentDetailsForm } from "./PaymentDetails";
+import { PaymentDetailsForm } from "./PaymentDetailsForm";
 
 const useStyles = makeStyles((theme) => ({
     layout: {

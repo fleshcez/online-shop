@@ -17,7 +17,7 @@ import {
     XFormService,
 } from "../XForm/xForm.service";
 
-export interface PaymentDetailsProps {
+export interface PaymentDetailsFormProps {
     title: string;
     primaryLabel: string;
     secondaryLabel: string;
@@ -114,7 +114,7 @@ function Form({
     onSecondary,
     secondaryLabel,
     model
-}: PaymentDetailsProps) {
+}: PaymentDetailsFormProps) {
     const formService = useContext(xFormServiceContext);
     const { selectYears, selectMonths } = useDetailsForm();
     const classes = useStyles();
@@ -185,7 +185,7 @@ function Form({
                 size="medium"
                 color="secondary"
                 variant="contained"
-                onClick={() => onAction(onSecondary)}
+                onClick={() => onAction(onSecondary, false)}
             >
                 {secondaryLabel}
             </Button>
@@ -196,7 +196,7 @@ function Form({
                 className={classes.action}
                 disabled={!isFormValid && isFormDirty}
                 onClick={() => {
-                    onAction(onPrimary);
+                    onAction(onPrimary, true);
                 }}
             >
                 {primaryLabel}
@@ -205,7 +205,7 @@ function Form({
     );
 }
 
-export function PaymentDetailsForm(props: PaymentDetailsProps) {
+export function PaymentDetailsForm(props: PaymentDetailsFormProps) {
     return (
         <XFormService>
             <Form {...props} />

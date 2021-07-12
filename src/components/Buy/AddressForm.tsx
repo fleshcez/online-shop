@@ -133,7 +133,7 @@ function Form({
                 className={classes.action}
                 disabled={!isFormValid && isFormDirty}
                 onClick={() => {
-                    onAction(onPrimary);
+                    onAction(onPrimary, true);
                 }}
             >
                 {primaryLabel}

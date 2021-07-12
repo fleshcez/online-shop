@@ -1,21 +1,23 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Nullable } from "../../../intrastructure/types";
-import { FieldError, FieldUpdate, xFormServiceContext } from "../xForm.service";
-import { XFieldProps } from "./fieldProps";
+import { xFormServiceContext } from "../xForm.service";
+import { XFieldProps } from "./xFieldProps";
 import { useValidation, validate, Validation } from "./validation";
 
 interface FormFieldProps<S> extends XFieldProps<S> {
-    validation: Validation;
-    setFieldValue: (val: any) => void;
+    validation?: Validation;
+    setFieldValue: (val: S) => void;
+    fieldValue: Nullable<S>;
 }
 
-export function useFormField<S>({
+export function useXFormField<S>({
     validation,
     errorMessage,
     onUpdateErrorState,
     onUpdate,
     fieldName,
-    setFieldValue
+    setFieldValue,
+    fieldValue
 }: FormFieldProps<S>) {
     const formService = useContext(xFormServiceContext);
     const { subscribe, updateField, addError } = formService;
@@ -40,7 +42,9 @@ export function useFormField<S>({
 
     const valueRef = useRef<Nullable<S>>();
     const validRef = useRef<boolean>(true);
-    
+    validRef.current = isValid;
+    valueRef.current = fieldValue;
+
     useEffect(() => {
         subscribe({
             value: valueRef,
@@ -72,4 +76,13 @@ export function useFormField<S>({
         setFieldValue(value);
         tryValidate(value);
     };
+
+    return {
+        onFocus,
+        onChange,
+        onBlur,
+        isDirty,
+        isValid,
+        helperText
+    }
 }

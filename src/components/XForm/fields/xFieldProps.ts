@@ -1,3 +1,4 @@
+import { Nullable } from "../../../intrastructure/types";
 import { FieldError, FieldUpdate } from "../xForm.service";
 
 export interface XFieldProps<T> {
@@ -5,6 +6,6 @@ export interface XFieldProps<T> {
     onUpdate: (field: FieldUpdate) => void;
     errorMessage?: string;
     label: string;
-    value?: T;
+    value?: Nullable<T>;
     onUpdateErrorState?: (err: FieldError) => void;
 }

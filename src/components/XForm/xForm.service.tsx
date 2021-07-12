@@ -35,7 +35,7 @@ export interface XFormService {
     formErrors: FormErrors;
     subscribe: (subscriber: FormSubscriber) => void;
     isFormDirty: boolean;
-    onAction: (callbackFn:(model:any) => void) => void;
+    onAction: (callbackFn:(model:any) => void, validate: boolean) => void;
 }
 
 export const xFormServiceContext = createContext<XFormService>(
@@ -68,7 +68,7 @@ function useXFormService(): XFormService {
     };
 
     // Retrieves form model and calls back with it
-    const onAction = (callbackFn: (model:any) => void, validate?: boolean) => {
+    const onAction = (callbackFn: (model:any) => void, validate: boolean) => {
         if(!validate || isFormValid) {
             // Browser autocomplete doesn't trigger change event on fields.
             // Won't have all fields populated if not manually pulling values

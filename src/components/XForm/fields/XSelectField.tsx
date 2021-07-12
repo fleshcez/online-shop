@@ -6,11 +6,11 @@ import {
     MenuItem,
     Select,
 } from "@material-ui/core";
-import { useState, useContext, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Nullable } from "../../../intrastructure/types";
-import { xFormServiceContext } from "../xForm.service";
-import { XFieldProps } from "./fieldProps";
-import { RequiredValidation, useValidation, validate } from "./validation";
+import { XFieldProps } from "./xFieldProps";
+import { RequiredValidation } from "./validation";
+import { useXFormField } from "./XFormField";
 
 export interface XSelectFieldProps<S> extends XFieldProps<S> {
     validation?: RequiredValidation;
@@ -26,85 +26,21 @@ const useStyles = makeStyles({
 function useXSelectField<S>(props: XSelectFieldProps<S>) {
     const {
         value,
-        onUpdate,
-        validation,
-        errorMessage,
-        label,
-        onUpdateErrorState,
-        fieldName,
         values,
+        label
     } = props;
-
-    const formService = useContext(xFormServiceContext);
-    const { subscribe, updateField, addError } = formService;
-
-    // Can use component without service. External update function takes precedence
-    const updateFn = onUpdate || updateField;
-    const updateErrorFn = onUpdateErrorState || addError;
-
     const [fieldValue, setFieldValue] = useState<Nullable<S>>(value || values[0].value);
-    const [isDirty, setIsDirty] = useState<boolean>(false);
-    const { isValid, onValidation, helperText } = useValidation({
-        errorMessage,
-        updateErrorFn,
-        fieldName,
-    });
-
-
-    const valueRef = useRef<Nullable<S>>();
-    const validRef = useRef<boolean>(true);
-    validRef.current = isValid;
-    valueRef.current = fieldValue;
-
-    const tryValidate = (value: Nullable<S>) => {
-        if (validation) {
-            const validationResult = validate({ validation, value });
-            onValidation(validationResult);
-        }
-    };
-
-    useEffect(() => {
-        subscribe({
-            value: valueRef,
-            isDirty: () => isDirty,
-            setDirty: (dirt) => setIsDirty(dirt),
-            isValid: validRef,
-            name: fieldName
-        });
-
-        tryValidate(valueRef.current);
-        updateFn({ value: valueRef.current, fieldName });
-    }, []);
-
-    const onBlur = (
-        event: { target: { value: S } }
-    ) => {
-        const value = event.target.value;
-        tryValidate(value);
-
-        updateFn({ value, fieldName });
-    };
-
-    const onFocus = () => setIsDirty(true);
-
-    const onChange = (
-        event: { target: { value: S } }
-    ) => {
-        const value = event.target.value;
-        setFieldValue(value);
-        tryValidate(value);
-    };
+    const { isDirty, isValid, helperText, onBlur, onChange, onFocus } = useXFormField<S>({...props, setFieldValue, fieldValue});
 
     return {
-        selectedValue: fieldValue,
-        values,
-        onChange,
-        onBlur,
-        onFocus,
         label,
-        errorMessage: isDirty && helperText,
         showError: !isValid && isDirty,
-        isDirty,
+        errorMessage: isDirty && helperText,
+        onBlur,
+        onChange,
+        onFocus,
+        values,
+        selectedValue: fieldValue
     };
 }
 
