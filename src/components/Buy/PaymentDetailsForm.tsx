@@ -7,6 +7,7 @@ import {
     createStyles,
 } from "@material-ui/core";
 import { useContext, useMemo } from "react";
+import { Payment } from "../../intrastructure/models/buy.model";
 import { ValidationType } from "../XForm/fields/validation";
 import { XSelectField } from "../XForm/fields/XSelectField";
 import { XTextField } from "../XForm/fields/XTextField";
@@ -21,9 +22,9 @@ export interface PaymentDetailsFormProps {
     title: string;
     primaryLabel: string;
     secondaryLabel: string;
-    onPrimary: (model: any) => void;
-    onSecondary: (model: any) => void;
-    model: any;
+    onPrimary: (model: Payment) => void;
+    onSecondary: (model: Payment) => void;
+    model: Payment;
 }
 
 function useDetailsForm() {
@@ -124,7 +125,6 @@ function Form({
         updateField,
         isFormValid,
         isFormDirty,
-        formModel,
         onAction,
     } = formService;
     return (

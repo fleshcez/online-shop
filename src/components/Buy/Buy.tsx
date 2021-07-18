@@ -5,14 +5,15 @@ import {
     Step,
     StepLabel,
     Stepper,
-    Typography,
 } from "@material-ui/core";
-import { useEffect } from "react";
-import { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Address, Payment } from "../../intrastructure/models/buy.model";
 import { AppState } from "../../intrastructure/store/app-state";
 import { AddressForm } from "./AddressForm";
 import { PaymentDetailsForm } from "./PaymentDetailsForm";
+import { updateAddress, updatePayment } from "./state/buy.actions";
+import { Summary } from "./Summary";
 
 const useStyles = makeStyles((theme) => ({
     layout: {
@@ -46,16 +47,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function useBuy() {
-    const entries = useSelector((state: AppState) => state.cart.entries);
-    const [addressDetails, setAddressDetails] = useState({});
-    const [paymentDetails, setPaymentDetails] = useState({});
+    const dispatch = useDispatch();
+
+    const addressDetails = useSelector((state: AppState) => state.buy.address);
+    const paymentDetails = useSelector((state: AppState) => state.buy.payment);
+    const setAddressDetails = (model: Address) =>
+        dispatch(updateAddress(model));
+    const setPaymentDetails = (model: Payment) =>
+        dispatch(updatePayment(model));
 
     const [activeStep, setActiveStep] = useState(0);
-    const total = useMemo(
-        () => entries.reduce((acc, cur) => acc + cur.unitPrice, 0),
-        [entries]
-    );
-    const summary = `Total to pay: ${total}`;
     const onBack = () => {
         setActiveStep(activeStep - 1);
     };
@@ -71,7 +72,6 @@ function useBuy() {
     }, [paymentDetails]);
 
     return {
-        summary,
         onBack,
         onForward,
         activeStep,
@@ -132,6 +132,15 @@ function Content({
                     }}
                 />
             );
+        case 2:
+            return (
+                <Summary
+                    address={addressDetails}
+                    payment={paymentDetails}
+                    onSecondary={onBack}
+                    secondaryLabel="Back"
+                />
+            );
         default:
             return <div></div>;
     }
@@ -139,7 +148,6 @@ function Content({
 
 export function Buy() {
     const {
-        summary,
         activeStep,
         onForward,
         onBack,
@@ -161,7 +169,6 @@ export function Buy() {
                     ))}
                 </Stepper>
                 <Paper className={classes.paper} elevation={2}>
-                    <Typography>{summary}</Typography>
                     <Content
                         activeStep={activeStep}
                         onForward={onForward}

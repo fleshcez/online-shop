@@ -7,6 +7,7 @@ import {
     Theme,
 } from "@material-ui/core";
 import { useContext } from "react";
+import { Address } from "../../intrastructure/models/buy.model";
 import { ValidationType } from "../XForm/fields/validation";
 import { XTextField } from "../XForm/fields/XTextField";
 import {
@@ -19,7 +20,7 @@ import {
 export interface AddressFormProps {
     title: string;
     primaryLabel: string;
-    model: any;
+    model: Address;
     onPrimary: (model: any) => void;
 }
 
@@ -44,8 +45,6 @@ function Form({
         addError,
         updateField,
         isFormValid,
-        formErrors,
-        formModel,
         isFormDirty,
         onAction,
     } = formService;

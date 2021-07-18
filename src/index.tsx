@@ -6,13 +6,11 @@ import { AppStore } from "./intrastructure/store/AppStore";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
-    <React.StrictMode>
         <AppStore>
             <AppServices>
                 <App />
             </AppServices>
-        </AppStore>
-    </React.StrictMode>,
+        </AppStore>,
     document.getElementById("root")
 );
 
