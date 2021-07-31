@@ -99,18 +99,15 @@ interface UseValidationProps {
 }
 export function useValidation({errorMessage, updateErrorFn, fieldName}: UseValidationProps) {
     const [isValid, setIsValid] = useState(true);
-    const [helperText, setHelperText] = useState("");
 
     const onValidation = (validationResult: boolean) => {
         var msg = validationResult ? "" : errorMessage || "";
         setIsValid(validationResult);
-        setHelperText(msg);
         updateErrorFn && updateErrorFn({ fieldName, error: msg });
     };
 
     return {
         onValidation,
-        isValid,
-        helperText
+        isValid
     }
 }

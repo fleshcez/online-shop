@@ -13,14 +13,15 @@ function useXTextField(props: XTextFieldProps) {
     const {
         value,
         label,
+        errorMessage
     } = props;
     const [fieldValue, setFieldValue] = useState<Nullable<string>>(value || "");
-    const { isDirty, isValid, helperText, onBlur, onChange, onFocus } = useXFormField<string>({...props, setFieldValue, fieldValue});
+    const { isDirty, isValid, onBlur, onChange, onFocus } = useXFormField<string>({...props, setFieldValue, fieldValue});
 
     return {
         label,
         showError: !isValid && isDirty,
-        errorMessage: isDirty && helperText,
+        errorMessage,
         onBlur,
         onChange,
         onFocus,

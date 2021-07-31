@@ -27,15 +27,16 @@ function useXSelectField<S>(props: XSelectFieldProps<S>) {
     const {
         value,
         values,
-        label
+        label,
+        errorMessage
     } = props;
     const [fieldValue, setFieldValue] = useState<Nullable<S>>(value || values[0].value);
-    const { isDirty, isValid, helperText, onBlur, onChange, onFocus } = useXFormField<S>({...props, setFieldValue, fieldValue});
+    const { isDirty, isValid, onBlur, onChange, onFocus } = useXFormField<S>({...props, setFieldValue, fieldValue});
 
     return {
         label,
         showError: !isValid && isDirty,
-        errorMessage: isDirty && helperText,
+        errorMessage,
         onBlur,
         onChange,
         onFocus,

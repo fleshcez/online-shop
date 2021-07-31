@@ -27,7 +27,7 @@ export function useXFormField<S>({
     const updateErrorFn = onUpdateErrorState || addError;
 
     const [isDirty, setIsDirty] = useState<boolean>(false);
-    const { isValid, onValidation, helperText } = useValidation({
+    const { isValid, onValidation } = useValidation({
         errorMessage,
         updateErrorFn,
         fieldName,
@@ -82,7 +82,6 @@ export function useXFormField<S>({
         onChange,
         onBlur,
         isDirty,
-        isValid,
-        helperText
+        isValid
     }
 }
